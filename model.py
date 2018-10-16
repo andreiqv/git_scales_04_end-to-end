@@ -44,7 +44,7 @@ else:
 		raise Exception('Bad n_model')
 		# https://tfhub.dev/google/imagenet/resnet_v2_152/feature_vector/1
 
-	hub_module = lambda : hub.Module(sp_model)
+	hub_module = lambda trainable=False: hub.Module(sp_model)
 
 	#bottleneck_tensor_size =  1001
 	BATCH_SIZE = 32
