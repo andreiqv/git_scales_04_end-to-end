@@ -298,7 +298,7 @@ def train_and_save_model(dataset, shape, num_classes):
 		#	trainable=True)
 			#trainable=False)
 		hub_module = model.hub_module
-		network_model = hub_module(trainable=False)	
+		network_model = hub_module(trainable=True)	
 		#print(module._graph)
 	else:
 		network_model = model.network_model
