@@ -297,8 +297,8 @@ def train_and_save_model(dataset, shape, num_classes):
 		#module = hub.Module("https://tfhub.dev/google/imagenet/inception_resnet_v2/feature_vector/1", 
 		#	trainable=True)
 			#trainable=False)
-		hub_module = model.hub_module(trainable=False)
-		network_model = hub_module()	
+		hub_module = model.hub_module
+		network_model = hub_module(trainable=False)	
 		#print(module._graph)
 	else:
 		network_model = model.network_model
