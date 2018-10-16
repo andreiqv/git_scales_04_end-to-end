@@ -35,7 +35,7 @@ last_layers = networks.network01  # no sigmoid
 DO_MIX = False
 NUM_CLASSES = 0
 CHECKPOINT_NAME = 'full_model'
-PB_FILE_NAME = 'saved_model_full.pb'
+PB_FILE_NAME = 'saved_model_full_trainable.pb'
 OUTPUT_NODE = 'softmax'
 
 np.set_printoptions(precision=4, suppress=True)
