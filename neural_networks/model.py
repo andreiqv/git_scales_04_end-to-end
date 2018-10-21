@@ -6,14 +6,11 @@ sys.path.append('..')
 import os.path
 import neural_networks.networks as networks
 
-use_hub = os.path.exists('.use_hub')
+USE_HUB = not os.path.exists('.dont_use_hub')
+use_hub = USE_HUB
 
-if not use_hub:  # for local testing
-	network_model = networks.conv_network_224
-	SHAPE = 224, 224, 3
-	bottleneck_tensor_size =  588 #1536
 
-else:
+if USE_HUB:
 
 	import tensorflow_hub as hub
 	model_number = 3
@@ -37,3 +34,9 @@ else:
 		# https://tfhub.dev/google/imagenet/resnet_v2_152/feature_vector/1
 
 	hub_module = lambda trainable=False: hub.Module(sp_model)
+
+
+else:  # for local testing
+	network_model = networks.conv_network_224
+	SHAPE = 224, 224, 3
+	bottleneck_tensor_size =  588 #1536
