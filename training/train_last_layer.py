@@ -246,8 +246,10 @@ if __name__ == '__main__':
 						epoch = 0
 					
 					print('...')
-					num_train_batches_1 = min(num_train_batches, 50)
-					num_valid_batches_1 = min(num_valid_batches, 50)
+					last_display_iteration = False
+					limit = 10000 if last_display_iteration else 20
+					num_train_batches_1 = min(num_train_batches, limit)
+					num_valid_batches_1 = min(num_valid_batches, limit)
 
 					train_acc = np.mean( [accuracy.eval( \
 						feed_dict={bottleneck_input:train['images'][i*BATCH_SIZE:(i+1)*BATCH_SIZE], \
