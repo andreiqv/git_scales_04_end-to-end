@@ -246,25 +246,27 @@ if __name__ == '__main__':
 						epoch = 0
 					
 					print('...')
+					num_train_batches_1 = min(num_train_batches, 50)
+					num_valid_batches_1 = min(num_valid_batches, 50)
 
 					train_acc = np.mean( [accuracy.eval( \
 						feed_dict={bottleneck_input:train['images'][i*BATCH_SIZE:(i+1)*BATCH_SIZE], \
 						y:train['labels'][i*BATCH_SIZE:(i+1)*BATCH_SIZE]}) \
-						for i in range(0,num_train_batches)])
+						for i in range(0,num_train_batches_1)])
 					valid_acc = np.mean([ accuracy.eval( \
 						feed_dict={bottleneck_input:valid['images'][i*BATCH_SIZE:(i+1)*BATCH_SIZE], \
 						y:valid['labels'][i*BATCH_SIZE:(i+1)*BATCH_SIZE]}) \
-						for i in range(0,num_valid_batches)])
+						for i in range(0,num_valid_batches_1)])
 
 					# valid top5,6
 					valid_acc_top5 = np.mean([ acc_top5.eval( \
 						feed_dict={bottleneck_input:valid['images'][i*BATCH_SIZE:(i+1)*BATCH_SIZE], \
 						y:valid['labels'][i*BATCH_SIZE:(i+1)*BATCH_SIZE]}) \
-						for i in range(0,num_valid_batches)])					
+						for i in range(0,num_valid_batches_1)])					
 					valid_acc_top6 = np.mean([ acc_top6.eval( \
 						feed_dict={bottleneck_input:valid['images'][i*BATCH_SIZE:(i+1)*BATCH_SIZE], \
 						y:valid['labels'][i*BATCH_SIZE:(i+1)*BATCH_SIZE]}) \
-						for i in range(0,num_valid_batches)])		
+						for i in range(0,num_valid_batches_1)])		
 					if valid_acc > min_valid_acc:
 						min_valid_acc = valid_acc
 
