@@ -22,7 +22,7 @@ USE_HUB = not os.path.exists('.dont_use_hub')
 use_hub = USE_HUB
 
 if USE_HUB:
-	DATASET_DIR= '/home/andrei/Data/Datasets/Scales/classifier_dataset_13102018/'	
+	DATASET_DIR= '/home/andrei/Data/Datasets/Scales/classifier_dataset_181018/'	
 	BATCH_SIZE = 64  # batch for training last layer on bottleneck
 	DATASET_BATCH_SIZE = 64 # batch for creating bottleneck or training full network
 	DISPLAY_INTERVAL = 100  # num of iterations between evaluation of valid acc and display it
