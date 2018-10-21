@@ -246,8 +246,11 @@ if __name__ == '__main__':
 						epoch = 0
 										
 					# set limit on the number of batches for check of train process
-					last_display_iteration = False
-					limit = 10000 if last_display_iteration else 100
+					is_last_iterations = (iteration >= num_iters - DISPLAY_INTERVAL)
+					if is_last_iterations:
+						print('This is the last iterations.')					
+					#last_display_iteration = False
+					limit = 10000 if is_last_iterations else 100
 					num_train_batches_limit = min(num_train_batches, limit)
 					num_valid_batches_limit = min(num_valid_batches, limit)
 
