@@ -240,6 +240,10 @@ if __name__ == '__main__':
 
 				if iteration % DISPLAY_INTERVAL == 0:
 
+					try:
+						epoch = iteration//(num_train_batches // BATCH_SIZE * BATCH_SIZE)
+					except:
+						epoch = 0
 					print('epoch {0:2} (i={1:06}):'.format(epoch, iteration), end='')
 
 					train_acc = np.mean( [accuracy.eval( \
@@ -262,11 +266,6 @@ if __name__ == '__main__':
 						for i in range(0,num_valid_batches)])		
 					if valid_acc > min_valid_acc:
 						min_valid_acc = valid_acc
-
-					try:
-						epoch = iteration//(num_train_batches // BATCH_SIZE * BATCH_SIZE)
-					except:
-						epoch = 0
 
 					print('train={2:0.4f}, valid={3:0.4f} (max={4:0.4f}) [top5={5:0.4f}, top6={6:0.4f}]'.\
 						format(train_acc, valid_acc, min_valid_acc, valid_acc_top5, valid_acc_top6))
