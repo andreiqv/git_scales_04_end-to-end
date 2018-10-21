@@ -18,10 +18,17 @@ DO_BALANCING = False
 
 #--------
 
-USE_HUB = os.path.exists('.use_hub')
+USE_HUB = not os.path.exists('.dont_use_hub')
 use_hub = USE_HUB
 
-if not use_hub:  # for local testing
+if USE_HUB:
+	DATASET_DIR= '/home/andrei/Data/Datasets/Scales/classifier_dataset_13102018/'	
+	BATCH_SIZE = 64  # batch for training last layer on bottleneck
+	DATASET_BATCH_SIZE = 64 # batch for creating bottleneck or training full network
+	DISPLAY_INTERVAL = 100  # num of iterations between evaluation of valid acc and display it
+	NUM_ITERS = 1000*1000  # the total num of iterations for training a network
+
+else:  # for local testing
 	
 	DATASET_DIR = '../../separated'
 	BATCH_SIZE = 3 
@@ -29,12 +36,6 @@ if not use_hub:  # for local testing
 	DISPLAY_INTERVAL = 1
 	NUM_ITERS = 30
 
-else:
-	DATASET_DIR= '/home/andrei/Data/Datasets/Scales/classifier_dataset_13102018/'	
-	BATCH_SIZE = 64  # batch for training last layer on bottleneck
-	DATASET_BATCH_SIZE = 64 # batch for creating bottleneck or training full network
-	DISPLAY_INTERVAL = 100  # num of iterations between evaluation of valid acc and display it
-	NUM_ITERS = 1000*1000  # the total num of iterations for training a network
 
 #-------
 
