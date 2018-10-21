@@ -34,7 +34,7 @@ else:
 	BATCH_SIZE = 64  # batch for training last layer on bottleneck
 	DATASET_BATCH_SIZE = 64 # batch for creating bottleneck or training full network
 	DISPLAY_INTERVAL = 100  # num of iterations between evaluation of valid acc and display it
-	NUM_ITERS = 1000*200  # the total num of iterations for training a network
+	NUM_ITERS = 1000*1000  # the total num of iterations for training a network
 
 #-------
 
