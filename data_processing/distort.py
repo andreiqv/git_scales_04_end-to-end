@@ -11,7 +11,8 @@ def augment_dataset(dataset, mult=1):
 
 	def _random_distord(images, labels):
 
-		images = tf.image.random_flip_left_right(images)		
+		images = tf.image.random_flip_left_right(images)
+		images = tf.image.random_flip_up_down(images)	
 
 		#images = tf.image.random_hue(images, max_delta=0.05)
 		#images = tf.image.random_contrast(images, lower=0.3, upper=1.8)

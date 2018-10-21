@@ -15,7 +15,9 @@ import math
 import numpy as np
 np.set_printoptions(precision=4, suppress=True)
 
-from layers import *
+sys.path.append('.')
+sys.path.append('..')
+from neural_networks.layers import *
 
 HIDDEN_NUM_DEFAULT = 8
 
@@ -60,14 +62,21 @@ def network2(input_tensor, input_size, output_size, hidden_num=HIDDEN_NUM_DEFAUL
 
 class SingleLayerNeuralNetwork:	
 
-	def __init__(self, input_size, num_neurons, func=None, name=''):
+	def __init__(self, 
+		input_size, 
+		num_neurons, 
+		func=None, 
+		name='',
+		checkpoint = "./saved_model/single_layer_nn.ckpt"):
 
 		self.W = weight_variable([input_size, num_neurons], name='W_single_layer_nn')
 		self.b = bias_variable([num_neurons], name='b_single_layer_nn')
 
 		self.name = name
 		self.func = func
-		self.checkpoint = "./save_model/single_layer_nn.ckpt"
+		self.checkpoint = checkpoint
+
+		self.saver_dict = {'W_single_layer_nn': self.W, 'b_single_layer_nn': self.b}
 		
 	def module(self, x):
 
@@ -80,13 +89,14 @@ class SingleLayerNeuralNetwork:
 
 	def save(self, sess):
 
-		saver = tf.train.Saver()
+		saver = tf.train.Saver(self.saver_dict)
 		saver.save(sess, self.checkpoint)
+		print('Weights of the last layer were stored.')
 		return True
 
 	def restore(self, sess):
 
-		saver = tf.train.Saver({'W_single_layer_nn': self.W, 'b_single_layer_nn': self.b})
+		saver = tf.train.Saver(self.saver_dict)
 		saver.restore(sess, self.checkpoint)
 
 #==============================

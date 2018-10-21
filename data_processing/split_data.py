@@ -1,11 +1,17 @@
 import random
 
 
-"""
-def split_data_v4(data, ratio):
+def split_data_v4(data, ratio, do_balancing=False):
+	""" ver-4:
+	Shuffle and split dataset in train, valid and test subsets 
+	for each category.
+	Add expansion of small categories.
+	"""
+
 	zip3 = list(zip(data['labels'], data['images'], data['filenames']))
-	#random.shuffle(zip3)
-	#print('mix ok')
+
+	random.shuffle(zip3)
+	print('mix ok')
 
 	# divide into classes
 	labels = { z[0] for z in zip3 }
@@ -21,28 +27,30 @@ def split_data_v4(data, ratio):
 		len_test  = len_data * ratio[2] // sum(ratio)
 		len_train = len_data - len_valid - len_test	 # all rest in train set
 		#if 'len_train = len_data * ratio[0] // sum(ratio)', then not all images will be used
-		szip['train'] += category[label][ : len_train]
+		
+		# balancing
+		koef_mult = 1
+		if do_balancing: # 
+			if len_train >= 100 and len_train < 300:
+				koef_mult = 300 // len_train
+			elif len_train < 100:
+				koef_mult = 100 // len_train			
+
+		szip['train'] += category[label][ : len_train] * koef_mult
 		szip['valid'] += category[label][len_train : len_train + len_valid]
 		szip['test']  += category[label][len_train + len_valid : ]
 
 		print('Label {0}: {1} images [{2} {3} {4}]'.format(label, len_data, len_train, len_valid, len_test))
 		print(szip['train'][-1])
 
-	random.shuffle(szip['train'])	
+	#random.shuffle(szip['train'])	
 
 	sdata = {'train': dict(), 'valid': dict(), 'test': dict()} # splitted dataset
 
-	sdata['train']['labels']    = [x[0] for x in szip['train']]
-	sdata['train']['images']    = [x[1] for x in szip['train']]
-	sdata['train']['filenames'] = [x[2] for x in szip['train']]	
-
-	sdata['valid']['labels']    = [x[0] for x in szip['valid']]
-	sdata['valid']['images']    = [x[1] for x in szip['valid']]
-	sdata['valid']['filenames'] = [x[2] for x in szip['valid']]	
-
-	sdata['test']['labels']    = [x[0] for x in szip['test']]
-	sdata['test']['images']    = [x[1] for x in szip['test']]
-	sdata['test']['filenames'] = [x[2] for x in szip['test']]	
+	for key in sdata:
+		sdata[key]['labels']    = [x[0] for x in szip[key]]
+		sdata[key]['images']    = [x[1] for x in szip[key]]
+		sdata[key]['filenames'] = [x[2] for x in szip[key]]	
 
 	print('train:{}, valid:{}, test:{}'.\
 		format(len(sdata['train']['labels']), len(sdata['valid']['labels']), len(sdata['test']['labels'])))
@@ -51,7 +59,7 @@ def split_data_v4(data, ratio):
 		sdata[key]['size'] = len(sdata[key]['labels'])
 
 	return sdata	
-"""
+
 
 def split_data_v3(data, ratio):
 	""" ver-3:
@@ -79,7 +87,8 @@ def split_data_v3(data, ratio):
 		len_test  = len_data * ratio[2] // sum(ratio)
 		len_train = len_data - len_valid - len_test	 # all rest in train set
 		#if 'len_train = len_data * ratio[0] // sum(ratio)', then not all images will be used
-		szip['train'] += category[label][ : len_train]
+
+		szip['train'] += category[label][ : len_train] * koef_mult
 		szip['valid'] += category[label][len_train : len_train + len_valid]
 		szip['test']  += category[label][len_train + len_valid : ]
 
@@ -171,3 +180,55 @@ def split_data_v1(data, ratio):
 split_data = split_data_v1
 
 
+
+"""
+def split_data_v4(data, ratio):
+	zip3 = list(zip(data['labels'], data['images'], data['filenames']))
+	#random.shuffle(zip3)
+	#print('mix ok')
+
+	# divide into classes
+	labels = { z[0] for z in zip3 }
+	category = dict()
+	for label in labels:
+		category[label] = [z for z in zip3 if z[0] == label]
+
+	szip = {'train': [], 'valid': [], 'test': []}	# splitted zip
+
+	for label in labels:
+		len_data = len(category[label])
+		len_valid = len_data * ratio[1] // sum(ratio)
+		len_test  = len_data * ratio[2] // sum(ratio)
+		len_train = len_data - len_valid - len_test	 # all rest in train set
+		#if 'len_train = len_data * ratio[0] // sum(ratio)', then not all images will be used
+		szip['train'] += category[label][ : len_train]
+		szip['valid'] += category[label][len_train : len_train + len_valid]
+		szip['test']  += category[label][len_train + len_valid : ]
+
+		print('Label {0}: {1} images [{2} {3} {4}]'.format(label, len_data, len_train, len_valid, len_test))
+		print(szip['train'][-1])
+
+	random.shuffle(szip['train'])	
+
+	sdata = {'train': dict(), 'valid': dict(), 'test': dict()} # splitted dataset
+
+	sdata['train']['labels']    = [x[0] for x in szip['train']]
+	sdata['train']['images']    = [x[1] for x in szip['train']]
+	sdata['train']['filenames'] = [x[2] for x in szip['train']]	
+
+	sdata['valid']['labels']    = [x[0] for x in szip['valid']]
+	sdata['valid']['images']    = [x[1] for x in szip['valid']]
+	sdata['valid']['filenames'] = [x[2] for x in szip['valid']]	
+
+	sdata['test']['labels']    = [x[0] for x in szip['test']]
+	sdata['test']['images']    = [x[1] for x in szip['test']]
+	sdata['test']['filenames'] = [x[2] for x in szip['test']]	
+
+	print('train:{}, valid:{}, test:{}'.\
+		format(len(sdata['train']['labels']), len(sdata['valid']['labels']), len(sdata['test']['labels'])))
+
+	for key in sdata:
+		sdata[key]['size'] = len(sdata[key]['labels'])
+
+	return sdata	
+"""

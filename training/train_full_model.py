@@ -4,6 +4,10 @@
 Сквозное обучение всей нейронной сети на основе хабовской модели.
 Т.е. изображения подаются на вход сети (без вычисления боттлнека).
 https://kratzert.github.io/2017/06/15/example-of-tensorflows-new-input-pipeline.html
+
+v2: 
+Добавлена возможность загрузить обученные веса последнего слоя 
+и сделать fine-tune дообучение всей сети. Ключ -llr
 """
 
 import os
@@ -23,28 +27,25 @@ import tensorflow as tf
 Dataset = tf.data.Dataset
 Iterator = tf.data.Iterator
 
-import networks
-import split_data
-import distort
-import model
-from model import *
+sys.path.append('.')
+sys.path.append('..')
+
+from data_processing import split_data, distort
+from neural_networks import model
+from neural_networks import networks
+from neural_networks.model import *
+from utils.timer import timer
+
+import settings
+from settings import *
 #last_layers = networks.network1  # with sigmoid
-last_layers = networks.network01  # no sigmoid
-
-#DO_MIX = False
-DO_MIX = False
-NUM_CLASSES = 0
-CHECKPOINT_NAME = 'full_model'
-PB_FILE_NAME = 'saved_model_full_trainable.pb'
-OUTPUT_NODE = 'softmax'
-
-np.set_printoptions(precision=4, suppress=True)
+#last_layers = networks.network01  # no sigmoid
 
 #---------------------------------
 
-def save_labels_to_file(map_label_id):
+def save_labels_to_file(labels_file, map_label_id):
 
-	with open('labels.txt', 'wt') as f:
+	with open(labels_file, 'wt') as f:
 		for label in range(len(map_label_id)):
 			class_id = map_label_id[label]
 			f.write('{0}\n'.format(class_id))
@@ -91,6 +92,8 @@ def make_filenames_list_from_subdir(src_dir, shape, ratio):
 	num_classes = len(map_id_label)	
 	NUM_CLASSES = num_classes
 
+	save_labels_to_file(settings.LABELS_FILE, map_label_id)  # create the file labels.txt
+
 	for class_id in class_id_set:
 
 		subdir = src_dir + '/' + str(class_id)
@@ -127,7 +130,7 @@ def make_filenames_list_from_subdir(src_dir, shape, ratio):
 
 			#im.close()
 			print("dir={0}, class={1}: {2}/{3}: {4}".format(class_id, class_index, index_file, num_files, filename))
-	
+
 	print('----')
 	print('Number of classes: {0}'.format(num_classes))	
 	print('Number of feature vectors: {0}'.format(len(feature_vectors)))	
@@ -145,8 +148,9 @@ def make_filenames_list_from_subdir(src_dir, shape, ratio):
 		data['filenames'] = [x[2] for x in zip3]
 
 	print('Split data')
-	data = split_data.split_data_v3(data, ratio=ratio)
-
+	#data = split_data.split_data_v3(data, ratio=ratio)
+	data = split_data.split_data_v4(data, ratio=ratio,
+		do_balancing=settings.DO_BALANCING)
 
 	assert type(data['train']['labels'][0]) is int
 	assert type(data['train']['filenames'][0]) is str
@@ -215,8 +219,11 @@ def make_tf_dataset(filenames_data):
 	print('Train labels:', filenames_data['train']['labels'])
 	print('Valid labels:', filenames_data['valid']['labels'])
 
+	if len(filenames_data['test']['labels']) == 0:
+		filenames_data['test'] = filenames_data['valid']
+		# overwise it won't work.
+		# but further test dataset will not be used.
 
-	# 
 	#print(filenames_data['train']['filenames'])
 	train_filenames = tf.constant(filenames_data['train']['filenames'])
 	train_labels = tf.constant(filenames_data['train']['labels'])
@@ -245,8 +252,8 @@ def make_tf_dataset(filenames_data):
 	do_augmentation = True
 	if do_augmentation: 
 		train_data = distort.augment_dataset(train_data, mult=2)
-
-	batch_size = 16
+	
+	batch_size = settings.DATASET_BATCH_SIZE #batch_size = 64
 	train_data = train_data.batch(batch_size)
 	valid_data = valid_data.batch(batch_size)
 	test_data  = test_data.batch(batch_size)
@@ -258,12 +265,135 @@ def make_tf_dataset(filenames_data):
 
 
 
-def train_and_save_model(dataset, shape, num_classes):
+def make_bottleneck_with_tf(dataset, shape):
+
+	train_data = dataset['train']
+	valid_data = dataset['valid']
+	test_data  = dataset['test']
+	print(train_data)
+	print(valid_data)
+	#sys.exit(0)
+
+	# create TensorFlow Iterator object
+	iterator = Iterator.from_structure(train_data.output_types,
+	                                   train_data.output_shapes)
+	
+	next_element = iterator.get_next() #features, labels = iterator.get_next()
+
+	# create two initialization ops to switch between the datasets
+	train_init_op = iterator.make_initializer(train_data)
+	valid_init_op = iterator.make_initializer(valid_data)
+
+	# 3) Calculate bottleneck in TF
+	height, width, color =  shape
+	x = tf.placeholder(tf.float32, [None, height, width, 3], name='input')
+	resized_input_tensor = tf.reshape(x, [-1, height, width, 3])
+	assert height, width == hub.get_expected_image_size(module)	
+
+	#if use_hub:
+	if USE_HUB:
+		hub_module = model.hub_module
+		network_model = hub_module(trainable=False)	
+	else:
+		network_model = model.network_model
+
+	bottleneck_tensor = network_model(resized_input_tensor)  # Features with shape [batch_size, num_features]
+	print('bottleneck_tensor:', bottleneck_tensor)
+
+	bottleneck_data = dict()
+	bottleneck_data['train'] = {'images':[], 'labels':[]}
+	bottleneck_data['valid'] = {'images':[], 'labels':[]}
+	bottleneck_data['test'] =  {'images':[], 'labels':[]}
+
+	with tf.Session() as sess:
+
+		sess.run(tf.global_variables_initializer())
+
+		# initialize the iterator on the training data
+		sess.run(train_init_op) # switch to train dataset
+		i = 0
+		# get each element of the training dataset until the end is reached
+		while True:
+			i += 1
+			try:
+				print('train batch', i)
+				batch = sess.run(next_element)				
+				#img, label = elem
+				feature_vectors = bottleneck_tensor.eval(feed_dict={ x : batch[0] })
+				#label = elem[1]
+				images = list(map(list, feature_vectors))
+				labels = list(map(list, batch[1]))
+				bottleneck_data['train']['images'] += images
+				bottleneck_data['train']['labels'] += labels
+				#print(labels)
+			except tf.errors.OutOfRangeError:
+				print("End of training dataset.")
+				break
+			
+		# initialize the iterator on the validation data
+		sess.run(valid_init_op)
+		# get each element of the validation dataset until the end is reached
+		i = 0
+		while True:
+			i += 1
+			try:
+				print('valid batch', i)
+				batch = sess.run(next_element)
+				feature_vectors = bottleneck_tensor.eval(feed_dict={ x : batch[0] })
+				images = list(map(list, feature_vectors))
+				labels = list(map(list, batch[1]))
+				bottleneck_data['valid']['images'] += images
+				bottleneck_data['valid']['labels'] += labels								
+				#print(labels)
+			except tf.errors.OutOfRangeError:
+				print("End of validation dataset.")
+				break
+
+	return bottleneck_data
+
+
+def save_data_dump(data, dst_file):
+	
+	# save the data on a disk
+	dump = pickle.dumps(data)
+	print('dump done')
+	f = gzip.open(dst_file, 'wb')
+	print('gzip done')
+	f.write(dump)
+	print('dump was written')
+	f.close()
+
+
+def make_bottleneck_data(src_dir, shape, ratio):
+
+	filenames_data = make_filenames_list_from_subdir(
+		src_dir=src_dir, shape=shape, ratio=ratio)
+
+	dataset = make_tf_dataset(filenames_data)
+
+	timer('make_bottleneck')
+
+	bottleneck_data = make_bottleneck_with_tf(dataset, shape=SHAPE)
+
+	bottleneck_data['id_label'] = filenames_data['id_label']
+	bottleneck_data['label_id'] = filenames_data['label_id']
+	bottleneck_data['num_classes'] = filenames_data['num_classes']
+
+	print('Train size:', len(bottleneck_data['train']['images']))
+	print('Valid size:', len(bottleneck_data['valid']['images']))
+	print('Test size:', len(bottleneck_data['test']['images']))	
+
+	return bottleneck_data
+
+# -------------------	
+
+
+
+def train_and_save_model(dataset, shape, num_classes, last_layer_restore=False):
 	"""
+	Train whole model end-to-end.
 	shape : [height, width, color] - shape of input images
 	"""
-
-
 	train_data = dataset['train']
 	valid_data = dataset['valid']
 	test_data  = dataset['test']
@@ -284,16 +414,13 @@ def train_and_save_model(dataset, shape, num_classes):
 
 	# 3) Calculate bottleneck in TF
 	height, width, color =  shape
-	#x = tf.placeholder(tf.float32, [None, height, width, 3], name='Placeholder-x')
-	x = tf.placeholder(tf.float32, [None, height, width, color], name='input')
+	x = tf.placeholder(tf.float32, [None, height, width, color], 
+		name=settings.INPUT_NODE_NAME)
 	resized_input_tensor = tf.reshape(x, [-1, height, width, color])
-	#module = hub.Module("https://tfhub.dev/google/imagenet/resnet_v2_152/classification/1")		
-	
-	# num_features = 2048, height x width = 224 x 224 pixels
 	assert height, width == hub.get_expected_image_size(module)	
 		
 	#if use_hub:
-	if use_hub:
+	if USE_HUB:
 		#module = hub.Module("https://tfhub.dev/google/imagenet/inception_resnet_v2/feature_vector/1", 
 		#	trainable=True)
 			#trainable=False)
@@ -304,14 +431,21 @@ def train_and_save_model(dataset, shape, num_classes):
 		network_model = model.network_model
 
 	bottleneck_tensor = network_model(resized_input_tensor)  # Features with shape [batch_size, num_features]	
-
 	print('bottleneck_tensor:', bottleneck_tensor)
 	#print('bottleneck_tensor.get_shape():', bottleneck_tensor.get_shape())
-
 	#NUM_CLASSES = 112
 	print('NUM_CLASSES =', num_classes)
 
-	logits = last_layers(bottleneck_tensor, bottleneck_tensor_size, num_classes)
+	single_layer_nn = networks.SingleLayerNeuralNetwork(
+		input_size=bottleneck_tensor_size, 
+		num_neurons=num_classes,
+		func=None,
+		name='_out',
+		checkpoint='./saved_model/single_layer_nn.ckpt')
+	logits = single_layer_nn.module(bottleneck_tensor)	
+
+	#logits = last_layers(bottleneck_tensor, bottleneck_tensor_size, num_classes)
+	
 	print('logits =', logits)
 	output = tf.nn.softmax(logits, name=OUTPUT_NODE)
 
@@ -334,6 +468,10 @@ def train_and_save_model(dataset, shape, num_classes):
 	with tf.Session() as sess:
 
 		sess.run(tf.global_variables_initializer())
+
+		if last_layer_restore:
+			single_layer_nn.restore(sess)
+
 
 		NUM_EPOCH = 100
 
@@ -449,8 +587,13 @@ def createParser ():
 		help='output file')
 	parser.add_argument('-m', '--mix', dest='mix', action='store_true')
 
-	parser.add_argument('-n', '--num', default=100, type=int,\
-		help='num_angles for a single picture')
+	#parser.add_argument('-n', '--num', default=100, type=int,\
+	#	help='num_angles for a single picture')
+
+	parser.add_argument('-mb', '--make_bottleneck', dest='make_bottleneck', action='store_true')
+
+	parser.add_argument('-llr', '--last_layer_restore', dest='last_layer_restore', action='store_true')
+
 	return parser
 
 
@@ -464,13 +607,31 @@ if __name__ == '__main__':
 	#print('DO_MIX =',		DO_MIX)
 
 	if not arguments.src_dir:
-		src_dir = data_dir
+		src_dir = settings.DATASET_DIR
+
 	if not arguments.dst_file:		
 		dst_file = 'dump.gz'
 
-	filenames_data = make_filenames_list_from_subdir(
-		src_dir=src_dir, shape=SHAPE, ratio=[9,1,1])
+	flag_make_bottleneck = arguments.make_bottleneck
+	flag_last_layer_restore = arguments.last_layer_restore
 
-	dataset = make_tf_dataset(filenames_data)
 
-	train_and_save_model(dataset, shape=SHAPE, num_classes=filenames_data['num_classes'])
+	if flag_make_bottleneck:
+		# save bottleneck to dump pickle file
+
+		bottleneck_data = make_bottleneck_data(src_dir=src_dir, shape=SHAPE, ratio=[9,1,0])	
+
+		save_data_dump(bottleneck_data, dst_file=dst_file)
+
+	else:
+		# train full model on dataset
+
+		filenames_data = make_filenames_list_from_subdir(
+			src_dir=src_dir, shape=SHAPE, ratio=[9,1,0])
+
+		dataset = make_tf_dataset(filenames_data)		
+
+		train_and_save_model(dataset, 
+			shape=SHAPE, 
+			num_classes=filenames_data['num_classes'],
+			last_layer_restore=flag_last_layer_restore)
