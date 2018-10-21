@@ -447,7 +447,7 @@ def train_and_save_model(dataset, shape, num_classes, last_layer_restore=False):
 	#logits = last_layers(bottleneck_tensor, bottleneck_tensor_size, num_classes)
 	
 	print('logits =', logits)
-	output = tf.nn.softmax(logits, name=OUTPUT_NODE)
+	output = tf.nn.softmax(logits, name=OUTPUT_NODE_NAME)
 
 	y = tf.placeholder(tf.float32, [None, num_classes], name='Placeholder-y')   # Placeholder for labels.
 
