@@ -470,12 +470,9 @@ def train_and_save_model(dataset, shape, num_classes, last_layer_restore=False):
 		sess.run(tf.global_variables_initializer())
 
 		if last_layer_restore:
-			single_layer_nn.restore(sess)
+			single_layer_nn.restore(sess)		
 
-
-		NUM_EPOCH = 100
-
-		for epoch in range(NUM_EPOCH):
+		for epoch in range(settings.NUM_EPOCH_FULL_MODEL):
 			print('\nEPOCH {0}'.format(epoch))			
 
 			# initialize the iterator on the training data

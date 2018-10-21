@@ -23,10 +23,12 @@ use_hub = USE_HUB
 
 if USE_HUB:
 	DATASET_DIR= '/home/andrei/Data/Datasets/Scales/classifier_dataset_181018/'	
-	BATCH_SIZE = 64  # batch for training last layer on bottleneck
+	BATCH_SIZE = 32  # batch for training last layer on bottleneck
 	DATASET_BATCH_SIZE = 64 # batch for creating bottleneck or training full network
 	DISPLAY_INTERVAL = 100  # num of iterations between evaluation of valid acc and display it
-	NUM_ITERS = 1000*1000  # the total num of iterations for training a network
+	NUM_ITERS = 1000*1000  # the total num of iterations for training the last layer
+	NUM_ITERS_CHECKPOINT = 1000*200
+	NUM_EPOCH_FULL_MODEL = 100 # the num of epoch for training full network
 
 else:  # for local testing
 	
@@ -35,7 +37,7 @@ else:  # for local testing
 	DATASET_BATCH_SIZE = 16
 	DISPLAY_INTERVAL = 1
 	NUM_ITERS = 30
-
+	NUM_EPOCH_FULL_MODEL = 5
 
 #-------
 

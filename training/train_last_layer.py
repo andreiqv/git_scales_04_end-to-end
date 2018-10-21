@@ -240,6 +240,8 @@ if __name__ == '__main__':
 
 				if iteration % DISPLAY_INTERVAL == 0:
 
+					print('epoch {0:2} (i={1:06}):'.format(epoch, iteration), end='')
+
 					train_acc = np.mean( [accuracy.eval( \
 						feed_dict={bottleneck_input:train['images'][i*BATCH_SIZE:(i+1)*BATCH_SIZE], \
 						y:train['labels'][i*BATCH_SIZE:(i+1)*BATCH_SIZE]}) \
@@ -266,14 +268,16 @@ if __name__ == '__main__':
 					except:
 						epoch = 0
 
-					print('epoch {0:2} (i={1:06}): train={2:0.4f}, valid={3:0.4f} (max={4:0.4f}) [top5={5:0.4f}, top6={6:0.4f}]'.\
-						format(epoch, iteration, train_acc, valid_acc, min_valid_acc, valid_acc_top5, valid_acc_top6))
+					print('train={2:0.4f}, valid={3:0.4f} (max={4:0.4f}) [top5={5:0.4f}, top6={6:0.4f}]'.\
+						format(train_acc, valid_acc, min_valid_acc, valid_acc_top5, valid_acc_top6))
+					#print('epoch {0:2} (i={1:06}): train={2:0.4f}, valid={3:0.4f} (max={4:0.4f}) [top5={5:0.4f}, top6={6:0.4f}]'.\
+					#	format(epoch, iteration, train_acc, valid_acc, min_valid_acc, valid_acc_top5, valid_acc_top6))
 
 					if False:
-						if epoch % 200 == 0:	
+						if iteration % settings.NUM_ITERS_CHECKPOINT == 0:	
 							saver = tf.train.Saver()		
 							saver.save(sess, './save_model/{0}'.format(CHECKPOINT_NAME))
-					
+							print('')
 
 				if not is_training: break
 

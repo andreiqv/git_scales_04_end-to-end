@@ -24,6 +24,55 @@ HIDDEN_NUM_DEFAULT = 8
 #
 
 
+
+#---------------------
+# Neural network as a class:
+
+class SingleLayerNeuralNetwork:	
+
+	def __init__(self, 
+		input_size, 
+		num_neurons, 
+		func=None, 
+		name='',
+		checkpoint = "./saved_model/single_layer_nn.ckpt"):
+
+		self.W = weight_variable([input_size, num_neurons], name='W_single_layer_nn')
+		self.b = bias_variable([num_neurons], name='b_single_layer_nn')
+
+		self.name = name
+		self.func = func
+		self.checkpoint = checkpoint
+
+		self.saver_dict = {'W_single_layer_nn': self.W, 'b_single_layer_nn': self.b}
+		
+	def module(self, x):
+
+		if True:
+			x = tf.layers.dropout(inputs=x, rate=0.2)	
+
+		h = tf.matmul(x, self.W) + self.b
+
+		if self.func:
+			h = self.func(h, name='sigmoid_out')
+
+		return h
+
+	def save(self, sess):
+
+		saver = tf.train.Saver(self.saver_dict)
+		saver.save(sess, self.checkpoint)
+		print('Weights of the last layer were stored.')
+		return True
+
+	def restore(self, sess):
+
+		saver = tf.train.Saver(self.saver_dict)
+		saver.restore(sess, self.checkpoint)
+
+
+#==============================
+
 # add a final layer (or a few layers)
 
 def network01(input_tensor, input_size, output_size):
@@ -49,55 +98,12 @@ def network2(input_tensor, input_size, output_size, hidden_num=HIDDEN_NUM_DEFAUL
 		input_tensor, input_size=input_size, num_neurons=hidden_num, 
 		func=tf.nn.relu, name='F1') # func=tf.nn.relu
 	
-	drop1 = tf.layers.dropout(inputs=f1, rate=0.4)	
+	drop1 = tf.layers.dropout(inputs=f1, rate=0.2)	
 	
 	f2 = fullyConnectedLayer(drop1, input_size=hidden_num, num_neurons=output_size, 
 		func=tf.nn.sigmoid, name='_out')
 
 	return f2
-
-
-#---------------------
-# Neural network as a class:
-
-class SingleLayerNeuralNetwork:	
-
-	def __init__(self, 
-		input_size, 
-		num_neurons, 
-		func=None, 
-		name='',
-		checkpoint = "./saved_model/single_layer_nn.ckpt"):
-
-		self.W = weight_variable([input_size, num_neurons], name='W_single_layer_nn')
-		self.b = bias_variable([num_neurons], name='b_single_layer_nn')
-
-		self.name = name
-		self.func = func
-		self.checkpoint = checkpoint
-
-		self.saver_dict = {'W_single_layer_nn': self.W, 'b_single_layer_nn': self.b}
-		
-	def module(self, x):
-
-		h = tf.matmul(x, self.W) + self.b
-
-		if self.func:
-			h = self.func(h, name='sigmoid_out')
-
-		return h
-
-	def save(self, sess):
-
-		saver = tf.train.Saver(self.saver_dict)
-		saver.save(sess, self.checkpoint)
-		print('Weights of the last layer were stored.')
-		return True
-
-	def restore(self, sess):
-
-		saver = tf.train.Saver(self.saver_dict)
-		saver.restore(sess, self.checkpoint)
 
 #==============================
 # other models:
