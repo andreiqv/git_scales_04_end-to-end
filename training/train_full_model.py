@@ -138,7 +138,7 @@ def make_filenames_list_from_subdir(src_dir, shape, ratio):
 	data = {'images':feature_vectors, 'labels': labels, 'filenames':filenames}
 
 	# mix data	
-	if DO_MIX:
+	if settings.DO_MIX:
 		print('start mix data')
 		zip3 = list(zip(data['images'], data['labels'], data['filenames']))
 		random.shuffle(zip3)

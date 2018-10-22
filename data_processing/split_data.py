@@ -10,7 +10,7 @@ def split_data_v4(data, ratio, do_balancing=False):
 
 	zip3 = list(zip(data['labels'], data['images'], data['filenames']))
 
-	random.shuffle(zip3)
+	#random.shuffle(zip3)
 	print('mix ok')
 
 	# divide into classes

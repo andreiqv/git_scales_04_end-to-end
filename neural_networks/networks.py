@@ -53,7 +53,7 @@ class SingleLayerNeuralNetwork:
 			x = tf.layers.dropout(inputs=x, rate=self.droupout_rate)
 			print('Dropout with rate {} is used'.format(self.droupout_rate))
 
-		if True:
+		if False:
 			x = tf.layers.batch_normalization(x, training=True)
 			print('Batch normalization will be used.')
 
