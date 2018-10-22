@@ -425,7 +425,8 @@ def train_and_save_model(dataset, shape, num_classes, last_layer_restore=False):
 		#	trainable=True)
 			#trainable=False)
 		hub_module = model.hub_module
-		network_model = hub_module(trainable=True)	
+		network_model = hub_module(trainable=False)
+		#network_model = hub_module(trainable=True)
 		#print(module._graph)
 	else:
 		network_model = model.network_model
@@ -453,7 +454,7 @@ def train_and_save_model(dataset, shape, num_classes, last_layer_restore=False):
 
 	# for train for classification:
 	loss = tf.nn.softmax_cross_entropy_with_logits_v2(logits=logits, labels=y)
-	train_op = tf.train.AdagradOptimizer(0.01).minimize(loss)
+	train_op = tf.train.AdagradOptimizer(0.002).minimize(loss)
 	correct_prediction = tf.equal(tf.argmax(logits,1), tf.argmax(y,1))
 	accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32)) # top-1
 
@@ -502,7 +503,7 @@ def train_and_save_model(dataset, shape, num_classes, last_layer_restore=False):
 					"""
 
 				except tf.errors.OutOfRangeError:
-					print("End of training dataset.")
+					print("The end of training dataset.")
 					break
 				
 			# initialize the iterator on the validation data
@@ -523,7 +524,7 @@ def train_and_save_model(dataset, shape, num_classes, last_layer_restore=False):
 						#print('i={0} valid_acc={1:.4f}'.format(i, valid_acc))
 
 				except tf.errors.OutOfRangeError:
-					print("End of validation dataset.")
+					print("The end of validation dataset.")
 					break
 			
 			print('average valid acc = {0}'.format(sum_valid_acc / i))
