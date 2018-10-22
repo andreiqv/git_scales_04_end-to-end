@@ -489,7 +489,7 @@ def train_and_save_model(dataset, shape, num_classes, last_layer_restore=False):
 					train_acc = accuracy.eval(feed_dict={x: batch[0], y: batch[1]})
 					#print('train batch', i)
 
-					if i % DISPLAY_INTERVAL == 0:
+					if i % NUM_ITERS_DISPLAY_FULL_MODEL == 0:
 						print('epoch={0} i={1} train_acc={2:.4f}'.format(epoch, i, train_acc))
 
 					"""
@@ -518,7 +518,7 @@ def train_and_save_model(dataset, shape, num_classes, last_layer_restore=False):
 					valid_acc = accuracy.eval(feed_dict={x: batch[0], y: batch[1]})
 					sum_valid_acc += valid_acc
 
-					if i % math.ceil(DISPLAY_INTERVAL/10) == 0:
+					if i % math.ceil(NUM_ITERS_DISPLAY_FULL_MODEL/10) == 0:
 						print('epoch={0} i={1} valid_acc={2:.4f}'.format(epoch, i, valid_acc))
 						#print('i={0} valid_acc={1:.4f}'.format(i, valid_acc))
 

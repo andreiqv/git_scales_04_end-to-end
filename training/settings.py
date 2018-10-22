@@ -31,10 +31,11 @@ if USE_HUB:
 
 	NUM_ITERS = 1000*100  # the total num of iterations for training the last layer
 	NUM_ITERS_CHECKPOINT = 1000*100
-	NUM_ITERS_DISPLAY = 100  # num of iterations between evaluation of valid acc and display it
+	NUM_ITERS_DISPLAY = 1000  # num of iterations between evaluation of valid acc and display it
 
 	NUM_EPOCH_FULL_MODEL = 100 # the num of epoch for training full network
-	DISPLAY_INTERVAL_FULL_MODEL = 1
+	NUM_ITERS_DISPLAY_FULL_MODEL = 10
+	#DISPLAY_INTERVAL_FULL_MODEL = 1
 
 else:  # for local testing
 	
@@ -44,10 +45,10 @@ else:  # for local testing
 
 	NUM_ITERS = 30
 	NUM_ITERS_CHECKPOINT = 1000*1
-	NUM_ITERS_ = 1
+	NUM_ITERS_DISPLAY = 1
 
 	NUM_EPOCH_FULL_MODEL = 5
-	DISPLAY_INTERVAL_FULL_MODEL = 1
+	NUM_ITERS_DISPLAY_FULL_MODEL = 1
 
 
 #-------
