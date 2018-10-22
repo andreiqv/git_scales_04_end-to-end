@@ -238,7 +238,7 @@ if __name__ == '__main__':
 
 			for iteration in range(num_iters):			  # Train iteratively for NUM_iterationS.		 
 
-				if iteration % DISPLAY_INTERVAL == 0:
+				if iteration % settings.NUM_ITERS_DISPLAY == 0:
 
 					try:
 						epoch = iteration//(num_train_batches // BATCH_SIZE * BATCH_SIZE)
@@ -246,7 +246,7 @@ if __name__ == '__main__':
 						epoch = 0
 										
 					# set limit on the number of batches for check of train process
-					is_last_iterations = (iteration >= num_iters - DISPLAY_INTERVAL)
+					is_last_iterations = (iteration >= num_iters - NUM_ITERS_DISPLAY)
 					if is_last_iterations:
 						print('This is the last iterations.')					
 					#last_display_iteration = False
