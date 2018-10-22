@@ -109,7 +109,7 @@ def split_data_v4(data, ratio, do_balancing=False):
 		#if 'len_train = len_data * ratio[0] // sum(ratio)', then not all images will be used
 		
 		koef_mult = 1
-		if do_small_train_categories_expansion:
+		if do_balancing:
 			if len_train >= 100 and len_train < 300:
 				koef_mult = 300 // len_train
 			elif len_train < 100:
