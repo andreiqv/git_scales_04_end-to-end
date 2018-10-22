@@ -44,6 +44,8 @@ from settings import *
 
 split_data = data_processing.split_data.split_data_v4
 
+DEBUG = False
+
 #---------------------------------
 
 def save_labels_to_file(labels_file, map_label_id):
