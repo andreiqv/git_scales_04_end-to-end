@@ -498,7 +498,7 @@ def train_and_save_model(dataset, shape, num_classes, last_layer_restore=False):
 					print("The end of validation dataset.")
 					break
 				i += 1			
-			print('Epoch {0}: avg_valid_acc = {1}'.format(epoch, sum_valid_acc / i))
+			print('Epoch {0}: avg_valid_acc = {1:.4f}'.format(epoch, sum_valid_acc / i))
 
 
 			# TRAIN
