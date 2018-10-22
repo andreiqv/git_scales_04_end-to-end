@@ -425,8 +425,8 @@ def train_and_save_model(dataset, shape, num_classes, last_layer_restore=False):
 		#	trainable=True)
 			#trainable=False)
 		hub_module = model.hub_module
-		network_model = hub_module(trainable=False)
-		#network_model = hub_module(trainable=True)
+		#network_model = hub_module(trainable=False)
+		network_model = hub_module(trainable=True)
 		#print(module._graph)
 	else:
 		network_model = model.network_model
@@ -476,53 +476,41 @@ def train_and_save_model(dataset, shape, num_classes, last_layer_restore=False):
 		for epoch in range(settings.NUM_EPOCH_FULL_MODEL):
 			print('\nEPOCH {0}'.format(epoch))			
 
-
+			# VALID
 			# initialize the iterator on the validation data
-			sess.run(valid_init_op)
-			# get each element of the validation dataset until the end is reached
+			sess.run(valid_init_op) 			
 			i = 0
 			sum_valid_acc = 0
 			while True:
-				i += 1
-				try:
-					#print('valid batch', i)
-					batch = sess.run(next_element)
+				try:  
+					batch = sess.run(next_element) # get an element of the validation dataset
 					valid_acc = accuracy.eval(feed_dict={x: batch[0], y: batch[1]})
 					sum_valid_acc += valid_acc
-
-					if i % math.ceil(NUM_ITERS_DISPLAY_FULL_MODEL/10) == 0:
+					if i % math.ceil(NUM_ITERS_DISPLAY_FULL_MODEL / 10) == 0:
 						print('epoch={0} i={1} valid_acc={2:.4f}'.format(epoch, i, valid_acc))
-						#print('i={0} valid_acc={1:.4f}'.format(i, valid_acc))
-
 				except tf.errors.OutOfRangeError:
 					print("The end of validation dataset.")
 					break
-			
+				i += 1			
 			print('average valid acc = {0}'.format(sum_valid_acc / i))
-			
 
 
+			# TRAIN
 			# initialize the iterator on the training data
 			sess.run(train_init_op) # switch to train dataset
 			i = 0
 			# get each element of the training dataset until the end is reached
 			while True:
-				i += 1
 				try:
-					batch = sess.run(next_element)
-
-					# Perform one training iteration.
-					sess.run(train_op, {x: batch[0], y: batch[1]}) 
+					batch = sess.run(next_element)					
+					sess.run(train_op, {x: batch[0], y: batch[1]})  # Perform one training iteration.				
 					train_acc = accuracy.eval(feed_dict={x: batch[0], y: batch[1]})
-					#print('train batch', i)
-
 					if i % NUM_ITERS_DISPLAY_FULL_MODEL == 0:
 						print('epoch={0} i={1} train_acc={2:.4f}'.format(epoch, i, train_acc))
-
 				except tf.errors.OutOfRangeError:
 					print("The end of training dataset.")
 					break
-				
+				i += 1		
 
 
 		saver = tf.train.Saver()		
