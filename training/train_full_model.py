@@ -21,6 +21,7 @@ import random
 from random import randint
 import math
 import numpy as np
+import logging
 
 import tensorflow as tf
 #from tensorflow.contrib.data import Dataset, Iterator
@@ -45,6 +46,7 @@ from settings import *
 split_data = data_processing.split_data.split_data_v4
 
 DEBUG = False
+logging.basicConfig(level=logging.INFO)
 
 #---------------------------------
 
@@ -480,7 +482,7 @@ def train_and_save_model(dataset, shape, num_classes, last_layer_restore=False):
 
 		for epoch in range(settings.NUM_EPOCH_FULL_MODEL):
 			
-			if DEBUG: print('\nEPOCH {0}'.format(epoch))			
+			logging.debug('\nEPOCH {0}'.format(epoch))			
 
 			# VALID
 			# initialize the iterator on the validation data
@@ -495,7 +497,7 @@ def train_and_save_model(dataset, shape, num_classes, last_layer_restore=False):
 					#if i % math.ceil(NUM_ITERS_DISPLAY_FULL_MODEL / 10) == 0:
 					#	print('epoch={0} i={1} valid_acc={2:.4f}'.format(epoch, i, valid_acc))
 				except tf.errors.OutOfRangeError:
-					print("The end of validation dataset.")
+					logging.debug("The end of validation dataset.")
 					break
 				i += 1			
 			print('Epoch {0}: avg_valid_acc = {1:.4f}'.format(epoch, sum_valid_acc / i))
@@ -514,7 +516,7 @@ def train_and_save_model(dataset, shape, num_classes, last_layer_restore=False):
 					#	train_acc = accuracy.eval(feed_dict={x: batch[0], y: batch[1]})
 					#	print('epoch={0} i={1} train_acc={2:.4f}'.format(epoch, i, train_acc))
 				except tf.errors.OutOfRangeError:
-					print("The end of training dataset.")
+					logging.debug("The end of training dataset.")
 					break
 				i += 1		
 
