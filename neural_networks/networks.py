@@ -48,7 +48,7 @@ class SingleLayerNeuralNetwork:
 		
 	def module(self, x):
 
-		if True:
+		if False:
 			x = tf.layers.dropout(inputs=x, rate=0.2)	
 
 		h = tf.matmul(x, self.W) + self.b
