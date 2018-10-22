@@ -479,7 +479,8 @@ def train_and_save_model(dataset, shape, num_classes, last_layer_restore=False):
 			single_layer_nn.restore(sess)		
 
 		for epoch in range(settings.NUM_EPOCH_FULL_MODEL):
-			print('\nEPOCH {0}'.format(epoch))			
+			
+			if DEBUG: print('\nEPOCH {0}'.format(epoch))			
 
 			# VALID
 			# initialize the iterator on the validation data
@@ -497,7 +498,7 @@ def train_and_save_model(dataset, shape, num_classes, last_layer_restore=False):
 					print("The end of validation dataset.")
 					break
 				i += 1			
-			print('average valid acc = {0}'.format(sum_valid_acc / i))
+			print('Epoch {0}: avg_valid_acc = {1}'.format(epoch, sum_valid_acc / i))
 
 
 			# TRAIN
