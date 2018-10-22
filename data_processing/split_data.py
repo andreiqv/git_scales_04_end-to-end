@@ -1,4 +1,84 @@
 import random
+import sys
+import numpy as np
+
+def split_data_v5(data, ratio, do_balancing=False):
+	""" ver-5:
+	в пределах каждой папки (категории товаров) проводится сортировка по именам файлов, 
+	и первые файлы в списке попадают в train, а остальные в valid.
+	Затем в train и valid идет независимое перемешивание данных.
+	"""
+
+	zip3 = list(zip(data['labels'], data['images'], data['filenames']))
+
+	#random.shuffle(zip3)
+	#print('mix ok')
+
+	# divide by categories
+	labels = { z[0] for z in zip3 }
+	category = dict()
+	for label in labels:
+		category[label] = [z for z in zip3 if z[0] == label]
+		category[label].sort(key = lambda z : z[2])
+		for item in category[label]:
+			print('{0}: {1}'.format(item[0], item[2]))
+
+	#sys.exit(0)		
+
+	szip = {'train': [], 'valid': [], 'test': []}	# splitted zip
+
+	for label in labels:
+		len_data = len(category[label])
+		len_valid = len_data * ratio[1] // sum(ratio)
+		len_test  = len_data * ratio[2] // sum(ratio)
+		len_train = len_data - len_valid - len_test	 # all rest in train set
+		#if 'len_train = len_data * ratio[0] // sum(ratio)', then not all images will be used
+		
+		# balancing
+		koef_mult = 1
+		if do_balancing: # 
+			if len_train >= 100 and len_train < 300:
+				koef_mult = 300 // len_train
+			elif len_train < 100:
+				koef_mult = 100 // len_train			
+
+		szip['train'] += category[label][ : len_train] * koef_mult
+		szip['valid'] += category[label][len_train : len_train + len_valid]
+		szip['test']  += category[label][len_train + len_valid : ]
+
+		print('Label {0}: {1} images [{2} {3} {4}]'.format(label, len_data, len_train, len_valid, len_test))
+		print(szip['train'][-1])
+
+	# shuffle
+	random.shuffle(szip['train'])
+	random.shuffle(szip['valid'])
+
+	"""
+	randomize = np.arange(len(szip['train']))
+	np.random.shuffle(randomize)
+	szip['train'] = szip['train'][randomize]
+
+	randomize = np.arange(len(szip['valid']))
+	np.random.shuffle(randomize)
+	szip['valid'] = szip['valid'][randomize]
+	"""
+
+	# divided on separeted lists: labels, images, filenames.
+	sdata = {'train': dict(), 'valid': dict(), 'test': dict()} # splitted dataset
+
+	for key in sdata:
+		sdata[key]['labels']    = [x[0] for x in szip[key]]
+		sdata[key]['images']    = [x[1] for x in szip[key]]
+		sdata[key]['filenames'] = [x[2] for x in szip[key]]	
+
+	print('train:{}, valid:{}, test:{}'.\
+		format(len(sdata['train']['labels']), len(sdata['valid']['labels']), len(sdata['test']['labels'])))
+
+	for key in sdata:
+		sdata[key]['size'] = len(sdata[key]['labels'])
+
+	return sdata	
+
 
 
 def split_data_v4(data, ratio, do_balancing=False):
@@ -13,7 +93,7 @@ def split_data_v4(data, ratio, do_balancing=False):
 	#random.shuffle(zip3)
 	print('mix ok')
 
-	# divide into classes
+	# divide by categories
 	labels = { z[0] for z in zip3 }
 	category = dict()
 	for label in labels:
@@ -28,9 +108,8 @@ def split_data_v4(data, ratio, do_balancing=False):
 		len_train = len_data - len_valid - len_test	 # all rest in train set
 		#if 'len_train = len_data * ratio[0] // sum(ratio)', then not all images will be used
 		
-		# balancing
 		koef_mult = 1
-		if do_balancing: # 
+		if do_small_train_categories_expansion:
 			if len_train >= 100 and len_train < 300:
 				koef_mult = 300 // len_train
 			elif len_train < 100:

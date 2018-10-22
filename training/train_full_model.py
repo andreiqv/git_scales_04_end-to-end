@@ -30,7 +30,8 @@ Iterator = tf.data.Iterator
 sys.path.append('.')
 sys.path.append('..')
 
-from data_processing import split_data, distort
+import data_processing.split_data
+import data_processing.distort as distort
 from neural_networks import model
 from neural_networks import networks
 from neural_networks.model import *
@@ -40,6 +41,8 @@ import settings
 from settings import *
 #last_layers = networks.network1  # with sigmoid
 #last_layers = networks.network01  # no sigmoid
+
+split_data = data_processing.split_data.split_data_v4
 
 #---------------------------------
 
@@ -149,7 +152,7 @@ def make_filenames_list_from_subdir(src_dir, shape, ratio):
 
 	print('Split data')
 	#data = split_data.split_data_v3(data, ratio=ratio)
-	data = split_data.split_data_v4(data, ratio=ratio,
+	data = split_data(data, ratio=ratio,
 		do_balancing=settings.DO_BALANCING)
 
 	assert type(data['train']['labels'][0]) is int
@@ -486,8 +489,8 @@ def train_and_save_model(dataset, shape, num_classes, last_layer_restore=False):
 					batch = sess.run(next_element) # get an element of the validation dataset
 					valid_acc = accuracy.eval(feed_dict={x: batch[0], y: batch[1]})
 					sum_valid_acc += valid_acc
-					if i % math.ceil(NUM_ITERS_DISPLAY_FULL_MODEL / 10) == 0:
-						print('epoch={0} i={1} valid_acc={2:.4f}'.format(epoch, i, valid_acc))
+					#if i % math.ceil(NUM_ITERS_DISPLAY_FULL_MODEL / 10) == 0:
+					#	print('epoch={0} i={1} valid_acc={2:.4f}'.format(epoch, i, valid_acc))
 				except tf.errors.OutOfRangeError:
 					print("The end of validation dataset.")
 					break
@@ -503,10 +506,10 @@ def train_and_save_model(dataset, shape, num_classes, last_layer_restore=False):
 			while True:
 				try:
 					batch = sess.run(next_element)					
-					sess.run(train_op, {x: batch[0], y: batch[1]})  # Perform one training iteration.				
-					train_acc = accuracy.eval(feed_dict={x: batch[0], y: batch[1]})
-					if i % NUM_ITERS_DISPLAY_FULL_MODEL == 0:
-						print('epoch={0} i={1} train_acc={2:.4f}'.format(epoch, i, train_acc))
+					sess.run(train_op, {x: batch[0], y: batch[1]})  # Perform one training iteration.									
+					#if i % NUM_ITERS_DISPLAY_FULL_MODEL == 0:
+					#	train_acc = accuracy.eval(feed_dict={x: batch[0], y: batch[1]})
+					#	print('epoch={0} i={1} train_acc={2:.4f}'.format(epoch, i, train_acc))
 				except tf.errors.OutOfRangeError:
 					print("The end of training dataset.")
 					break
