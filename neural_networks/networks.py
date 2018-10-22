@@ -42,6 +42,7 @@ class SingleLayerNeuralNetwork:
 
 		self.name = name
 		self.func = func
+		self.droupout_rate = 0.2
 		self.checkpoint = checkpoint
 
 		self.saver_dict = {'W_single_layer_nn': self.W, 'b_single_layer_nn': self.b}
@@ -49,7 +50,12 @@ class SingleLayerNeuralNetwork:
 	def module(self, x):
 
 		if False:
-			x = tf.layers.dropout(inputs=x, rate=0.2)	
+			x = tf.layers.dropout(inputs=x, rate=self.droupout_rate)
+			print('Dropout with rate {} is used'.format(self.droupout_rate))
+
+		if True:
+			x = tf.layers.batch_normalization(x, training=True)
+			print('Batch normalization will be used.')
 
 		h = tf.matmul(x, self.W) + self.b
 
