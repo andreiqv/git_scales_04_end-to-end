@@ -476,36 +476,7 @@ def train_and_save_model(dataset, shape, num_classes, last_layer_restore=False):
 		for epoch in range(settings.NUM_EPOCH_FULL_MODEL):
 			print('\nEPOCH {0}'.format(epoch))			
 
-			# initialize the iterator on the training data
-			sess.run(train_init_op) # switch to train dataset
-			i = 0
-			# get each element of the training dataset until the end is reached
-			while True:
-				i += 1
-				try:
-					batch = sess.run(next_element)
 
-					# Perform one training iteration.
-					sess.run(train_op, {x: batch[0], y: batch[1]}) 
-					train_acc = accuracy.eval(feed_dict={x: batch[0], y: batch[1]})
-					#print('train batch', i)
-
-					if i % NUM_ITERS_DISPLAY_FULL_MODEL == 0:
-						print('epoch={0} i={1} train_acc={2:.4f}'.format(epoch, i, train_acc))
-
-					"""
-					feature_vectors = bottleneck_tensor.eval(feed_dict={ x : batch[0] })
-					images = list(map(list, feature_vectors))
-					labels = list(map(list, batch[1]))
-					bottleneck_data['train']['images'] += images
-					bottleneck_data['train']['labels'] += labels
-					#print(labels)
-					"""
-
-				except tf.errors.OutOfRangeError:
-					print("The end of training dataset.")
-					break
-				
 			# initialize the iterator on the validation data
 			sess.run(valid_init_op)
 			# get each element of the validation dataset until the end is reached
@@ -528,6 +499,30 @@ def train_and_save_model(dataset, shape, num_classes, last_layer_restore=False):
 					break
 			
 			print('average valid acc = {0}'.format(sum_valid_acc / i))
+			
+
+
+			# initialize the iterator on the training data
+			sess.run(train_init_op) # switch to train dataset
+			i = 0
+			# get each element of the training dataset until the end is reached
+			while True:
+				i += 1
+				try:
+					batch = sess.run(next_element)
+
+					# Perform one training iteration.
+					sess.run(train_op, {x: batch[0], y: batch[1]}) 
+					train_acc = accuracy.eval(feed_dict={x: batch[0], y: batch[1]})
+					#print('train batch', i)
+
+					if i % NUM_ITERS_DISPLAY_FULL_MODEL == 0:
+						print('epoch={0} i={1} train_acc={2:.4f}'.format(epoch, i, train_acc))
+
+				except tf.errors.OutOfRangeError:
+					print("The end of training dataset.")
+					break
+				
 
 
 		saver = tf.train.Saver()		
