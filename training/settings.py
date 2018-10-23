@@ -14,7 +14,7 @@ OUTPUT_NODE_NAME = 'softmax'   # the final node name of networks
 #OUTPUT_NODE = 'softmax'
 
 LEARNING_RATE = 0.01   # for last layer training 
-LEARNING_RATE_FULL_MODEL = 0.005  
+LEARNING_RATE_FULL_MODEL = 0.001  
 DO_BALANCING = False 
 # if very few images in directory then use it a few times (in train dataset)
 
