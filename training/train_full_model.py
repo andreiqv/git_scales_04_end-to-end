@@ -461,7 +461,7 @@ def train_and_save_model(dataset, shape, num_classes, last_layer_restore=False):
 
 	# for train for classification:
 	loss = tf.nn.softmax_cross_entropy_with_logits_v2(logits=logits, labels=y)
-	train_op = tf.train.AdagradOptimizer(0.002).minimize(loss)
+	train_op = tf.train.AdagradOptimizer(settings.LEARNING_RATE_FULL_MODEL).minimize(loss)
 	correct_prediction = tf.equal(tf.argmax(logits,1), tf.argmax(y,1))
 	accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32)) # top-1
 
