@@ -27,7 +27,8 @@ use_hub = USE_HUB
 if USE_HUB:
 
 	DATASET_DIR= '/home/andrei/Data/Datasets/Scales/classifier_dataset_181018/'	
-	BATCH_SIZE = 32  # batch for training last layer on bottleneck
+	#BATCH_SIZE = 32  # batch for training last layer on bottleneck
+	BATCH_SIZE = 1  # batch for training last layer on bottleneck
 	DATASET_BATCH_SIZE = 64 # batch for creating bottleneck or training full network
 
 	NUM_ITERS = 1000*100  # the total num of iterations for training the last layer
