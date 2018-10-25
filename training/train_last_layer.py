@@ -40,6 +40,8 @@ from neural_networks.model import *
 import settings
 from settings import *
 
+from loss_function import loss_function_top_6
+
 HIDDEN_NUM = 8
 CHECKPOINT_NAME = 'retrain_3'
 #output_node_names = ['sigmoid_out']
@@ -199,32 +201,20 @@ if __name__ == '__main__':
 
 		y = tf.placeholder(tf.float32, [None, NUM_CLASSES], name='Placeholder-y')   # Placeholder for labels.
 
-		# 2. Add nodes that represent the optimization algorithm.
-		# for regression:
-		#loss = tf.reduce_mean(tf.square(output - y))
-		#optimizer= tf.train.AdagradOptimizer(0.005)
-		#train_op = optimizer.minimize(loss)
-			
+		# 2. Add nodes that represent the optimization algorithm.	
 		# for classification:
-		
-		loss = -tf.reduce_sum(y * tf.log(output), 1)
+		#loss = -tf.reduce_sum(y * tf.log(output), 1)
+		print('output = ', output)
+
+		loss = loss_function_top_6(output, y, vector_size=NUM_CLASSES, tau=0.01)
+		# or:
 		#loss = tf.nn.softmax_cross_entropy_with_logits_v2(logits=logits, labels=y)
 		train_op = tf.train.AdagradOptimizer(0.01).minimize(loss)
 		correct_prediction = tf.equal(tf.argmax(logits,1), tf.argmax(y,1))
 		accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32)) # top-1
 
-		#acc_top5 = tf.metrics.mean(tf.nn.in_top_k(predictions=logits, targets=y, k=5))
-		"""
-		indices_1 = tf.nn.top_k(logits, k=5)
-		indices_2 = tf.nn.top_k(y, k=5)
-		correct = tf.equal(indices_1, indices_2)
-		acc_top5 = tf.reduce_mean(tf.cast(correct, 'float'))
-		"""
-
 		acc_top5 = tf.nn.in_top_k(logits, tf.argmax(y,1), 5)
 		acc_top6 = tf.nn.in_top_k(logits, tf.argmax(y,1), 6)
-
-		#output_angles_valid = []
 
 		# 3. Execute the graph on batches of input data.
 		with tf.Session() as sess:  # Connect to the TF runtime.
@@ -256,6 +246,13 @@ if __name__ == '__main__':
 					num_train_batches_limit = min(num_train_batches, limit)
 					num_valid_batches_limit = min(num_valid_batches, limit)
 
+
+					loss_avg = np.mean( [loss.eval( \
+						feed_dict={bottleneck_input:train['images'][i*BATCH_SIZE:(i+1)*BATCH_SIZE], \
+						y:train['labels'][i*BATCH_SIZE:(i+1)*BATCH_SIZE]}) \
+						for i in range(0,num_train_batches_limit)])
+					print('loss_avg = {}'.format(loss_avg))
+
 					train_acc = np.mean( [accuracy.eval( \
 						feed_dict={bottleneck_input:train['images'][i*BATCH_SIZE:(i+1)*BATCH_SIZE], \
 						y:train['labels'][i*BATCH_SIZE:(i+1)*BATCH_SIZE]}) \
@@ -276,6 +273,8 @@ if __name__ == '__main__':
 						for i in range(0,num_valid_batches_limit)])		
 					if valid_acc > min_valid_acc:
 						min_valid_acc = valid_acc
+
+
 
 					#print('train={:0.4f}, valid={:0.4f} (max={:0.4f}) [top5={:0.4f}, top6={:0.4f}]'.\
 					#	format(train_acc, valid_acc, min_valid_acc, valid_acc_top5, valid_acc_top6))

@@ -41,7 +41,8 @@ if USE_HUB:
 else:  # for local testing
 	
 	DATASET_DIR = '../../separated'
-	BATCH_SIZE = 3 
+	#BATCH_SIZE = 3
+	BATCH_SIZE = 1
 	DATASET_BATCH_SIZE = 16
 
 	NUM_ITERS = 30
