@@ -1,4 +1,4 @@
-import random 11
+import random
 import sys
 import numpy as np
 

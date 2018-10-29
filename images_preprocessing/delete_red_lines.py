@@ -7,7 +7,7 @@ import argparse
 from PIL import Image, ImageDraw
 import numpy as np
 
-DATASET_DIR = '/home/andrei/Data/Datasets/Scales/classifier_dataset_181018/'
+DATASET_DIR = '/w/WORK/ineru/06_scales/_dataset/test/'
 
 R, G, B = (0, 1, 2)
 
@@ -78,6 +78,20 @@ def process_all_subdirs(src_dir):
 		subdir_path = src_dir + '/' + subdir_name
 		process_subdir(subdir_path)	
 
+
+"""
+def rotate_images_with_angles(in_dir, out_dir, file_names, angles):
+
+	for i, file_name in enumerate(file_names):
+
+		in_file_path = in_dir + '/' + file_name
+		out_file_path = out_dir + '/' + file_name
+		img = Image.open(in_file_path)
+		angle = -angles[i]
+		img_rot = img.rotate(angle)
+		img_rot.save(out_file_path)
+		print('{0}: {1} - angle={2}'.format(i, file_name, angle))
+"""
 
 #-----------------------------------
 
