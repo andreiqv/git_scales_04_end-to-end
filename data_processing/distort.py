@@ -1,5 +1,6 @@
 import tensorflow as tf
-
+import math
+#import sys
 
 
 def augment_dataset(dataset, mult=1):
@@ -13,7 +14,21 @@ def augment_dataset(dataset, mult=1):
 	def _random_distord(images, labels):
 
 		images = tf.image.random_flip_left_right(images)
-		images = tf.image.random_flip_up_down(images)	
+		images = tf.image.random_flip_up_down(images)
+
+		d = 100
+		#w, h = 299, 299
+		w, h = 224, 224
+		#paddings = tf.constant([[0, 0], [d, d], [d, d], [0, 0]])
+		paddings = tf.constant([[d, d], [d, d], [0, 0]])
+		#images = tf.pad(images, paddings, "CONSTANT")
+		#images = tf.pad(images, paddings, "CONSTANT")
+		images = tf.pad(images, paddings, "SYMMETRIC")
+		#images = tf.image.resize_image_with_crop_or_pad(images, w+d, h+d)
+		angle = tf.random_uniform(shape=(1,), minval=0, maxval=90)
+		images = tf.contrib.image.rotate(images, angle * math.pi / 180, interpolation='BILINEAR')
+		#images = tf.image.crop_to_bounding_box(images, d, d, s+d, s+d)
+		images = tf.image.resize_image_with_crop_or_pad(images, w, h)			
 
 		#images = tf.image.random_hue(images, max_delta=0.05)
 		#images = tf.image.random_contrast(images, lower=0.3, upper=1.8)

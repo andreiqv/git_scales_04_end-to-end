@@ -256,9 +256,10 @@ def make_tf_dataset(filenames_data):
 	test_data  = test_data.map(input_parser_two_arg)
 
 	#dataset = dataset.batch(batch_size)
-	do_augmentation = True
+	do_augmentation = settings.DO_AUGMENTATION
 	if do_augmentation: 
-		train_data = distort.augment_dataset(train_data, mult=2)
+		train_data = distort.augment_dataset(train_data, 
+			mult=settings.MULT_AUGMENTATION)
 	
 	batch_size = settings.DATASET_BATCH_SIZE #batch_size = 64
 	train_data = train_data.batch(batch_size)

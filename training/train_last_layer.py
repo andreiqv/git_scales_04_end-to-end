@@ -40,8 +40,6 @@ from neural_networks.model import *
 import settings
 from settings import *
 
-from loss_function import loss_function_top_6
-
 HIDDEN_NUM = 8
 CHECKPOINT_NAME = 'retrain_3'
 #output_node_names = ['sigmoid_out']
@@ -206,9 +204,12 @@ if __name__ == '__main__':
 		#loss = -tf.reduce_sum(y * tf.log(output), 1)
 		print('output = ', output)
 
+		"""
+		from loss_function import loss_function_top_6
 		loss = loss_function_top_6(output, y, vector_size=NUM_CLASSES, tau=0.01)
+		"""
 		# or:
-		#loss = tf.nn.softmax_cross_entropy_with_logits_v2(logits=logits, labels=y)
+		loss = tf.nn.softmax_cross_entropy_with_logits_v2(logits=logits, labels=y)
 		train_op = tf.train.AdagradOptimizer(0.01).minimize(loss)
 		correct_prediction = tf.equal(tf.argmax(logits,1), tf.argmax(y,1))
 		accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32)) # top-1

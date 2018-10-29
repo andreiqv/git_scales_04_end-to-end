@@ -50,6 +50,12 @@ def sigma5(v, size_v):
 	return sum5
 
 
+def sigma(k, v, size_v):
+
+	t = 0
+	
+
+
 def loss_function_top_6(network_output, label_one_hot, vector_size, k=6, tau=0.1):
 	"""  Smooth Loss Functions for Deep Top-k Classification
 	"""	
@@ -77,8 +83,8 @@ def loss_function_top_6(network_output, label_one_hot, vector_size, k=6, tau=0.1
 	size_b = vector_size - 1
 
 	#loss = tau * tf.log( 1 + tf.exp(1/tau) * 1/a * sigmak(k, b) / sigmak(k-1, b) )
-	loss = tau * tf.log( 1 + tf.exp(1/tau) * 1/a \
-		* sigma6(b, size_b) / sigma5(b, size_b) )
+	#loss = tau * tf.log( 1 + tf.exp(1/tau) * 1/a \
+	#	* sigma6(b, size_b) / sigma5(b, size_b) )
 	
 	return loss
 
