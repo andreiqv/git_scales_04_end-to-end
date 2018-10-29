@@ -7,7 +7,7 @@ import argparse
 from PIL import Image, ImageDraw
 import numpy as np
 
-DATASET_DIR = '/w/WORK/ineru/06_scales/_dataset/test/'
+DATASET_DIR = '/home/andrei/Data/Datasets/Scales/classifier_dataset_181018/'
 
 R, G, B = (0, 1, 2)
 THRESHOLD = 25 # 1 - 50
