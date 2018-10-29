@@ -10,6 +10,7 @@ import numpy as np
 DATASET_DIR = '/w/WORK/ineru/06_scales/_dataset/test/'
 
 R, G, B = (0, 1, 2)
+THRESHOLD = 25 # 1 - 50
 
 def delete_red_lines(infile, outfile):
 	""" Detect and delete red linies on borders of a picture.
@@ -37,7 +38,7 @@ def delete_red_lines(infile, outfile):
 	0.05343511450381679
 	"""
 
-	delta = 20
+	delta = THRESHOLD
 	x = 0
 	while True:
 		meanR = np.mean(arr[x,x,R])
