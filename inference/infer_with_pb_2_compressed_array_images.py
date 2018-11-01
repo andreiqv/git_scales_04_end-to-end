@@ -158,7 +158,7 @@ def createParser ():
 	parser = argparse.ArgumentParser()
 	parser.add_argument('-i', '--input', default=None, type=str,\
 		help='input')
-	parser.add_argument('-dir', '--dir', default="images", type=str,\
+	parser.add_argument('-dir', '--dir', default="../images", type=str,\
 		help='input')	
 	parser.add_argument('-pb', '--pb', default="saved_model.pb", type=str,\
 		help='input')
