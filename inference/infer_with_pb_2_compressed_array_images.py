@@ -20,9 +20,9 @@ use_hub_model = False
 if use_hub_model:
 	FROZEN_FPATH = '/home/andrei/Data/Datasets/Scales/pb/output_graph.pb'
 	ENGINE_FPATH = '/home/andrei/Data/Datasets/Scales/pb/hub_model_engine.plan'
+	INPUT_SIZE = [3, 299, 299]
 	INPUT_NODE = 'Placeholder-x'
 	OUTPUT_NODE = 'final_result'
-	INPUT_SIZE = [3, 299, 299]
 	sinput_output_placeholders = ['Placeholder:0', 'final_result:0']
 
 else:
@@ -30,10 +30,13 @@ else:
 	#ENGINE_FPATH = '/root/tmp/engine.plan'
 	FROZEN_FPATH = 'saved_model_full_2.pb'
 	ENGINE_FPATH = 'saved_model_full_2.plan'
-	INPUT_NODE = 'input'
-	OUTPUT_NODE = 'softmax'
 	INPUT_SIZE = [3, 299, 299]
-	input_output_placeholders = ['input:0', 'softmax:0']
+	#INPUT_NODE = 'input'
+	#OUTPUT_NODE = 'softmax'
+	#input_output_placeholders = ['input:0', 'softmax:0']
+	INPUT_NODE = 'input_1'
+	OUTPUT_NODE = 'predictions/Softmax'	
+	input_output_placeholders = ['input_1:0', 'predictions/Softmax:0']
 
 	# old version:
 	#INPUT_NODE = 'Placeholder-x'
