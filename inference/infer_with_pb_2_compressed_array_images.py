@@ -34,9 +34,9 @@ else:
 	#INPUT_NODE = 'input'
 	#OUTPUT_NODE = 'softmax'
 	#input_output_placeholders = ['input:0', 'softmax:0']
-	INPUT_NODE = 'input_1_1'
+	INPUT_NODE = 'input_1'
 	OUTPUT_NODE = 'dense/Softmax'	
-	input_output_placeholders = ['input_1_1:0', 'dense/Softmax:0']
+	input_output_placeholders = ['input_1:0', 'dense/Softmax:0']
 
 	# old version:
 	#INPUT_NODE = 'Placeholder-x'
