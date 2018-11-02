@@ -18,6 +18,7 @@ def convert(in_file, out_dir):
 			graph_def = tf.GraphDef()
 			graph_def.ParseFromString(f.read())
 			g_in = tf.import_graph_def(graph_def)
+			print([n.name for n in tf.get_default_graph().as_graph_def().node])
 
 	LOGDIR = out_dir
 	train_writer = tf.summary.FileWriter(LOGDIR)
